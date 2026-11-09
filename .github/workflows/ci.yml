@@ -1,0 +1,53 @@
+name: ZENTA CI
+run-name: ${{ github.event_name == 'workflow_dispatch' && inputs.demo_coverage_gate && 'Demo gerbang coverage (sengaja gagal)' || 'Pengujian lengkap' }}
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      demo_coverage_gate:
+        description: Demonstrasi gagal karena coverage
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: PyTest dan Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v6
+      - name: Siapkan Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Instal dependensi proyek
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python -m pip install --no-deps -e .
+      - name: Siapkan Chromium
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.demo_coverage_gate }}
+        run: python -m playwright install --with-deps --only-shell chromium
+      - name: Jalankan tes dan cek coverage 80%
+        env:
+          DEMO_COVERAGE_GATE: ${{ github.event_name == 'workflow_dispatch' && inputs.demo_coverage_gate }}
+        run: |
+          if [ "$DEMO_COVERAGE_GATE" = "true" ]; then
+            python scripts/run_tests.py --unit-only
+          else
+            python scripts/run_tests.py
+          fi
+      - name: Simpan laporan PyTest dan coverage
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: zenta-test-reports
+          path: reports/
+          if-no-files-found: warn

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zenta-sesi11"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["Flask==3.1.3"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+zenta_auth = ["templates/*.html"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+branch = true
+source = ["zenta_auth"]
+relative_files = true
+
+[tool.coverage.report]
+precision = 2

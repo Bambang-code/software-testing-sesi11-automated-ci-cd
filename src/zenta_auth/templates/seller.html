@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="id">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pengajuan seller · ZENTA</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 1rem/1.55 system-ui, sans-serif; color: #172233; background: #f5f7fa; }
+  header { background: #fff; border-bottom: 1px solid #d4dce5; }
+  header p { max-width: 58rem; margin: auto; padding: 0.9rem 1.25rem; color: #114b88; font-weight: 750; }
+  main { max-width: 40rem; margin: 3rem auto; padding: 0 1rem; }
+  article { background: #fff; border: 1px solid #d4dce5; border-radius: 0.5rem; padding: clamp(1rem, 4vw, 2rem); }
+  h1 { margin: 0; line-height: 1.2; }
+  .intro { margin: 0.5rem 0 1.5rem; color: #475569; }
+  dl { margin: 0 0 1.5rem; border-block: 1px solid #e4e9ee; }
+  dl div { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; padding: 0.65rem 0; }
+  dt { color: #475569; min-width: 7rem; }
+  dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; min-width: 0; }
+  label { display: block; font-weight: 600; }
+  input { width: 100%; margin: 0.25rem 0 1rem; padding: 0.6rem; border: 1px solid #78879a; border-radius: 0.25rem; font: inherit; }
+  button { font: inherit; font-weight: 600; border: 1px solid #155ba4; border-radius: 0.25rem; background: #155ba4; color: #fff; padding: 0.6rem 1rem; cursor: pointer; }
+  .secondary { background: #fff; color: #114b88; }
+  :focus-visible { outline: 2px solid #155ba4; outline-offset: 3px; }
+  .error { color: #a02127; }
+  [aria-invalid="true"] { border-color: #a02127; }
+</style>
+<header><p>ZENTA · Praktik Software Testing</p></header>
+<main>
+  <article>
+    <h1>Pengajuan seller</h1>
+    <p class="intro">Ajukan toko atau tarik pengajuan yang masih menunggu.</p>
+    <dl>
+      <div><dt>Status</dt><dd data-testid="application-status">{{ 'Menunggu peninjauan' if shop_name else 'Draf' }}</dd></div>
+      {% if shop_name %}
+      <div><dt>Nama toko</dt><dd data-testid="submitted-shop">{{ shop_name }}</dd></div>
+      {% endif %}
+    </dl>
+    {% if error %}
+    <p class="error" role="alert" id="application-error" data-testid="application-error">{{ error }}</p>
+    {% endif %}
+    {% if status == 'PENDING' %}
+    <form action="{{ url_for('withdraw_application') }}" method="post">
+      <button type="submit" class="secondary" data-testid="withdraw-application">Tarik pengajuan</button>
+    </form>
+    {% else %}
+    <form action="{{ url_for('submit_application') }}" method="post">
+      <label for="shop-name">Nama toko</label>
+      <input id="shop-name" name="shop_name" data-testid="shop-name" required
+        {% if error == 'Nama toko wajib diisi.' %}aria-invalid="true" aria-describedby="application-error"{% endif %}>
+      <button type="submit" data-testid="submit-application">Kirim pengajuan</button>
+    </form>
+    {% endif %}
+  </article>
+</main>
+</html>
